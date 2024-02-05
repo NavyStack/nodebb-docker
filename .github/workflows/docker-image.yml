@@ -104,7 +104,7 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            tags: ${{ steps.meta-ghcr.outputs.tags }}
+            ${{ steps.meta-ghcr.outputs.tags }}
             navystack/nodebb:${{ env.CURRENT_DATE_KST }}
           labels: ${{ steps.meta-ghcr.outputs.labels }}
           platforms: linux/amd64,linux/arm64
