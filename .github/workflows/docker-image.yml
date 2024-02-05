@@ -12,6 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set version based on tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Checkout NodeBB GIT
+        uses: actions/checkout@v4
+        with:
+          repository: NodeBB/NodeBB
+          ref: ${{ env.RELEASE_VERSION }}
+          path: NodeBB
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
