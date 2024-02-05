@@ -43,7 +43,8 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   npm install --omit=dev \
   && pnpm import \
   && pnpm install --prod --frozen-lockfile \
-  && rm -rf package-lock.json
+  && rm -rf package-lock.json \
+  && sed -i "s/'X-Powered-By': encodeURI(meta.config\['powered-by'\] || 'NodeBB'),//g" /usr/src/app/src/middleware/headers.js
 
 # === 'node_modules-touch' stage complete! ===
 

@@ -4,7 +4,7 @@ services:
   nodebb:
     container_name: nodebb
     restart: unless-stopped
-    image: navystack/nodebb:latest
+    image: navystack/nodebb:3.6.5
     ports:
       - '4567:4567/tcp'
     volumes:
