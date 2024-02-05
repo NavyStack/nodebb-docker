@@ -71,7 +71,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: mongo.Dockerfile
-          push: true
           tags: |
             navystack/nodebb:mongo7-latest
             navystack/nodebb:mongo7-${{ env.CURRENT_DATE_KST }}
@@ -85,7 +84,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: Dockerfile
-          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
