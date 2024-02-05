@@ -1,0 +1,118 @@
+name: Nightly Base Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "Dockerfile"
+      - "mongo.Dockerfile"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: navystack/nodebb
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+          flavor: |
+            latest=true
+
+      - name: Set up SSH
+        uses: MrSquaare/ssh-setup-action@v3
+        with:
+          host: ${{ secrets.SSH_ARM64_RUNNER }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY_ARM64_RUNNER }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          endpoint: ${{ secrets.AMD64_RUNNER_ENDPOINT }}
+          append: |
+            - endpoint: ${{ secrets.ARM64_RUNNER_ENDPOINT }}
+              platforms: linux/arm64
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Get current date in KST
+        run: echo "CURRENT_DATE_KST=$(date +'%Y%m%d-%H%M%S' -d '+9 hours')" >> $GITHUB_ENV
+
+      - name: Build and push (MongoDB)
+        uses: docker/build-push-action@v5
+        with:
+          file: mongo.Dockerfile
+          push: true
+          tags: |
+            navystack/nodebb:mongo7-latest
+            navystack/nodebb:mongo7-${{ env.CURRENT_DATE_KST }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build and push (NodeBB)
+        uses: docker/build-push-action@v5
+        with:
+          file: Dockerfile
+          push: true
+          tags: |
+            tags: ${{ steps.meta.outputs.tags }}
+            navystack/nodebb:${{ env.CURRENT_DATE_KST }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+
+      - name: Set lowercase repository owner
+        run: |
+          repo_owner_lowercase=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_OWNER_LOWERCASE=$repo_owner_lowercase" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.REPO_OWNER_LOWERCASE }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta (ghcr.io)
+        id: meta-ghcr
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+          flavor: |
+            latest=true
+
+      - name: Build and push (NodeBB)
+        uses: docker/build-push-action@v5
+        with:
+          file: Dockerfile
+          push: true
+          tags: |
+            tags: ${{ steps.meta-ghcr.outputs.tags }}
+            navystack/nodebb:${{ env.CURRENT_DATE_KST }}
+          labels: ${{ steps.meta-ghcr.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build and push (MongoDB)
+        uses: docker/build-push-action@v5
+        with:
+          file: mongo.Dockerfile
+          push: true
+          tags: |
+            navystack/nodebb:mongo7-latest
+            navystack/nodebb:mongo7-${{ env.CURRENT_DATE_KST }}
+          labels: ${{ steps.meta-ghcr.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
