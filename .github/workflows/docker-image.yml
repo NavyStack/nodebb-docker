@@ -36,7 +36,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=${{ CURRENT_DATE_KST }}
+            type=raw,value=${{ env.CURRENT_DATE_KST }}
           flavor: |
             latest=true
 
