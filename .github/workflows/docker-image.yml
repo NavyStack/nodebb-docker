@@ -3,7 +3,7 @@ name: Docker Image CI
 on:
   push:
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
   workflow_dispatch:
 
 jobs:
@@ -17,15 +17,26 @@ jobs:
       - name: Set version based on tag
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
+      - name: Get current date in KST
+        run: echo "CURRENT_DATE_KST=$(date +'%Y%m%d-%H%M%S' -d '+9 hours')" >> $GITHUB_ENV
+
+      - name: Set lowercase repository owner
+        run: |
+          repo_owner_lowercase=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_OWNER_LOWERCASE=$repo_owner_lowercase" >> $GITHUB_ENV
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: navystack/nodebb
+          images: |
+            navystack/nodebb
+            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
+            type=raw,value=${{ CURRENT_DATE_KST }}
           flavor: |
             latest=true
 
@@ -49,36 +60,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Get current date in KST
-        run: echo "CURRENT_DATE_KST=$(date +'%Y%m%d-%H%M%S' -d '+9 hours')" >> $GITHUB_ENV
-
-      - name: Build and push (MongoDB)
-        uses: docker/build-push-action@v5
-        with:
-          file: mongo.Dockerfile
-          push: true
-          tags: |
-            navystack/nodebb:mongo7-latest
-            navystack/nodebb:mongo7-${{ env.CURRENT_DATE_KST }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-
-      - name: Build and push (NodeBB)
-        uses: docker/build-push-action@v5
-        with:
-          file: Dockerfile
-          push: true
-          tags: |
-            ${{ steps.meta.outputs.tags }}
-            navystack/nodebb:${{ env.CURRENT_DATE_KST }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-
-      - name: Set lowercase repository owner
-        run: |
-          repo_owner_lowercase=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "REPO_OWNER_LOWERCASE=$repo_owner_lowercase" >> $GITHUB_ENV
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -86,30 +67,7 @@ jobs:
           username: ${{ env.REPO_OWNER_LOWERCASE }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker meta (ghcr.io)
-        id: meta-ghcr
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-          flavor: |
-            latest=true
-
-      - name: Build and push (NodeBB)
-        uses: docker/build-push-action@v5
-        with:
-          file: Dockerfile
-          push: true
-          tags: |
-            ${{ steps.meta-ghcr.outputs.tags }}
-            navystack/nodebb:${{ env.CURRENT_DATE_KST }}
-          labels: ${{ steps.meta-ghcr.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-
-      - name: Build and push (MongoDB)
+      - name: Build and push ( MongoDB )
         uses: docker/build-push-action@v5
         with:
           file: mongo.Dockerfile
@@ -117,5 +75,16 @@ jobs:
           tags: |
             navystack/nodebb:mongo7-latest
             navystack/nodebb:mongo7-${{ env.CURRENT_DATE_KST }}
-          labels: ${{ steps.meta-ghcr.outputs.labels }}
+            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:mongo7-latest-${{ env.CURRENT_DATE_KST }}
+            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:mongo7-latest
+          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
+
+      - name: Build and push ( NodeBB )
+        uses: docker/build-push-action@v5
+        with:
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7

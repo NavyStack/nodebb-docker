@@ -1,7 +1,7 @@
 FROM node:latest AS git
 ARG USER=nodebb \
-    UID=1001 \
-    GID=1001
+  UID=1001 \
+  GID=1001
 
 RUN groupadd --gid ${GID} ${USER}
 RUN useradd --uid ${UID} --gid ${GID} --create-home --shell /bin/bash ${USER}
@@ -33,16 +33,17 @@ ARG USER=nodebb UID=1001 GID=1001
 RUN groupadd --gid ${GID} ${USER}
 RUN useradd --uid ${UID} --gid ${GID} --create-home --shell /bin/bash ${USER}
 
-COPY --from=git --chown=${USER}:${USER} /node-bb/install/package.json /usr/src/build/
+COPY --from=git --chown=${USER}:${USER} /node-bb/install/package.json /usr/src/app/
 
-WORKDIR /usr/src/build/
+WORKDIR /usr/src/app/
 
 USER ${USER}
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    npm install --omit=dev \
-    && pnpm import \
-    && pnpm install
+  npm install --omit=dev \
+  && pnpm import \
+  && pnpm install --prod --frozen-lockfile \
+  && rm -rf package-lock.json
 
 # === 'node_modules-touch' stage complete! ===
 
@@ -54,12 +55,12 @@ RUN corepack enable
 WORKDIR /usr/src/app/
 
 RUN corepack enable \
-    && groupadd --gid ${GID} ${USER} \
-    && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
-    && mkdir -p /opt/config/database/mongo/data /opt/config/database/mongo/config \
-    && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
+  && groupadd --gid ${GID} ${USER} \
+  && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
+  && mkdir -p /opt/config/database/mongo/data /opt/config/database/mongo/config \
+  && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
 
-COPY --from=node_modules-touch --chown=${USER}:${USER} /usr/src/build/ /usr/src/app/
+COPY --from=node_modules-touch --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/
 COPY --from=git --chown=${USER}:${USER} /node-bb/ /usr/src/app/
 COPY --from=git --chown=${USER}:${USER} /node-bb/install/docker/setup.json /usr/src/app/setup.json
 COPY --from=git --chown=${USER}:${USER} /usr/bin/tini /usr/bin/tini

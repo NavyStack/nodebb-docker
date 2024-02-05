@@ -6,20 +6,21 @@ services:
     restart: unless-stopped
     image: navystack/nodebb:latest
     ports:
-      - "4567:4567/tcp"
+      - '4567:4567/tcp'
     volumes:
+      - nodebb-node_modules:/usr/src/app/node_modules
       - nodebb-build:/usr/src/app/build
       - nodebb-uploads:/usr/src/app/public/uploads
       - nodebb-config:/opt/config
       - mongo-data:/opt/config/database/mongo/data
       - mongo-config:/opt/config/database/mongo/config
-      - ./config.json:/opt/config/config.json
+
   mongo:
     container_name: mongo
     image: navystack/nodebb:mongo7-latest
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - '27017:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: nodebb
       MONGO_INITDB_ROOT_PASSWORD: nodebb
@@ -31,6 +32,7 @@ services:
       - ./nodebb-mongo-init.js:/docker-entrypoint-initdb.d/user-init.js
 
 volumes:
+  nodebb-node_modules:
   nodebb-build:
   nodebb-uploads:
   nodebb-config:
