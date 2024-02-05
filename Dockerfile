@@ -13,6 +13,7 @@ RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bas
 
 RUN rm -rf /node-bb/install/docker/entrypoint.sh
 RUN sed -i 's|"\*/jquery":|"jquery":|g' /node-bb/install/package.json
+RUN sed -i "s/'X-Powered-By': encodeURI(meta.config\['powered-by'\] || 'NodeBB'),//g" /node-bb/src/middleware/headers.js
 
 COPY entrypoint.sh /node-bb/install/docker/entrypoint.sh
 
@@ -43,8 +44,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   npm install --omit=dev \
   && pnpm import \
   && pnpm install --prod --frozen-lockfile \
-  && rm -rf package-lock.json \
-  && sed -i "s/'X-Powered-By': encodeURI(meta.config\['powered-by'\] || 'NodeBB'),//g" /usr/src/app/src/middleware/headers.js
+  && rm -rf package-lock.json
 
 # === 'node_modules-touch' stage complete! ===
 
