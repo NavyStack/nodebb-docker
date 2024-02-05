@@ -16,7 +16,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: navystack/nodebb
+          images: navystack/nodebb-docker
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
