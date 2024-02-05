@@ -13,6 +13,7 @@ services:
       - nodebb-config:/opt/config
       - mongo-data:/opt/config/database/mongo/data
       - mongo-config:/opt/config/database/mongo/config
+      - ./config.json:/opt/config/config.json
   mongo:
     container_name: mongo
     image: navystack/nodebb:mongo7-latest
