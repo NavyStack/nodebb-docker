@@ -53,8 +53,6 @@ jobs:
           append: |
             - endpoint: ${{ secrets.ARM64_RUNNER_ENDPOINT }}
               platforms: linux/arm64
-          compression: zstd
-          compression-level: 22
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
