@@ -81,6 +81,7 @@ jobs:
             ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:mongo7-latest
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
+          outputs: type=image,compression=zstd,compression-level=22,push=true
 
       - name: Build and push ( NodeBB )
         uses: docker/build-push-action@v5
@@ -90,3 +91,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
+          outputs: type=image,compression=zstd,compression-level=22,push=true
