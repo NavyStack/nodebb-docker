@@ -77,7 +77,7 @@ RUN set -eux \
   && rm -rf /var/lib/mongodb \
   && mv /etc/mongod.conf /etc/mongod.conf.orig
 
-VOLUME ["/data/db", "/data/configdb"]
+VOLUME ["/data/db"]
 
 ENV HOME /data/db
 

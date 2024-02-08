@@ -69,5 +69,5 @@ COPY --from=git --chown=${USER}:${USER} /usr/bin/tini /usr/bin/tini
 USER ${USER}
 
 EXPOSE 4567
-VOLUME ["/usr/src/app/node_modules", "/usr/src/app/build", "/usr/src/app/public/uploads", "/opt/config"]
+VOLUME ["/usr/src/app/"]
 ENTRYPOINT ["tini", "--", "install/docker/entrypoint.sh"]

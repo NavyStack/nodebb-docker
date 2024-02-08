@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set default values for environment variables
-export CONFIG_DIR="${CONFIG_DIR:-/opt/config}"
+export CONFIG_DIR="${CONFIG_DIR:-/usr/src/app}"
 export CONFIG=$CONFIG_DIR/config.json
 export FORCE_BUILD_BEFORE_START="${FORCE_BUILD_BEFORE_START:-false}"
 export NODEBB_INIT_VERB="${NODEBB_INIT_VERB:-install}"

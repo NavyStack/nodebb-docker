@@ -5,37 +5,47 @@ services:
     container_name: nodebb
     restart: unless-stopped
     image: navystack/nodebb:3.6.5
-    ports:
-      - '4567:4567/tcp'
     volumes:
-      - nodebb-node_modules:/usr/src/app/node_modules
-      - nodebb-build:/usr/src/app/build
-      - nodebb-uploads:/usr/src/app/public/uploads
-      - nodebb-config:/opt/config
-      - mongo-data:/opt/config/database/mongo/data
-      - mongo-config:/opt/config/database/mongo/config
+      - nodebb-data:/usr/src/app
+    environment:
+      CONFIG_DIR: /usr/src/app
+
+    networks:
+      - traefik-network
+      - interanl
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+
+      - "traefik.http.services.nodebb.loadbalancer.server.port=4567"
+      - "traefik.http.services.nodebb.loadbalancer.passhostheader=true"
+
+      - "traefik.http.routers.nodebb-rt.entrypoints=websecure"
+      - "traefik.http.routers.nodebb-rt.rule=Host(`example.com`) || Host(`www.example.com`)"
+      - "traefik.http.routers.nodebb-rt.service=nodebb"
+      - "traefik.http.routers.nodebb-rt.middlewares=www-to-Root@file, security-headers@file, websocket@file"
+      - "traefik.http.routers.nodebb-rt.tls=true"
+      - "traefik.http.routers.nodebb-rt.tls.certresolver=letsencrypt"
 
   mongo:
     container_name: mongo
     image: navystack/nodebb:mongo7-latest
     restart: unless-stopped
-    ports:
-      - '27017:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: nodebb
       MONGO_INITDB_ROOT_PASSWORD: nodebb
       MONGO_INITDB_DATABASE: nodebb
     volumes:
-      - mongo-config:/etc/mongo
       - mongo-data:/data/db
-      - mongo-configdb:/data/configdb
       - ./nodebb-mongo-init.js:/docker-entrypoint-initdb.d/user-init.js
+    networks:
+      - interanl
 
 volumes:
-  nodebb-node_modules:
-  nodebb-build:
-  nodebb-uploads:
-  nodebb-config:
-  mongo-config:
+  nodebb-data:
   mongo-data:
-  mongo-configdb:
+
+networks:
+  traefik-network:
+    external: true
+  interanl:
