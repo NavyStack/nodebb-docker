@@ -16,7 +16,7 @@ RUN rm -rf /node-bb/docker-compose.yml
 RUN rm -rf /node-bb/Dockerfile
 
 RUN sed -i 's|"\*/jquery":|"jquery":|g' /node-bb/install/package.json
-RUN sed -i "s/'X-Powered-By': encodeURI(meta.config\['powered-by'\] || 'NodeBB'),//g" /node-bb/src/middleware/headers.js
+# RUN sed -i "s/'X-Powered-By': encodeURI(meta.config\['powered-by'\] || 'NodeBB'),//g" /node-bb/src/middleware/headers.js
 
 RUN chown -R ${USER}:${USER} /node-bb/
 RUN apt-get update
