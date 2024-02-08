@@ -28,14 +28,14 @@ pnpm install
 # Handle setup or start based on conditions
 if [[ -n $SETUP ]]; then
   echo "Setup environmental variable detected. Starting setup session."
-  ./nodebb setup --config="$CONFIG"
+  /usr/src/app/nodebb setup --config="$CONFIG"
 elif [ -f "$CONFIG" ]; then
   echo "Config file exists at $CONFIG, assuming it is a valid config. Starting forum."
   if [ "$FORCE_BUILD_BEFORE_START" = true ]; then
-    ./nodebb build --config="$CONFIG"
+    /usr/src/app/nodebb build --config="$CONFIG"
   fi
-  ./nodebb start --config="$CONFIG"
+  /usr/src/app/nodebb start --config="$CONFIG"
 else
   echo "Config file not found at $CONFIG. Starting installation session."
-  ./nodebb "${NODEBB_INIT_VERB}" --config="$CONFIG"
+  /usr/src/app/nodebb "${NODEBB_INIT_VERB}" --config="$CONFIG"
 fi

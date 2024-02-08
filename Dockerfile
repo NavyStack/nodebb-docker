@@ -12,10 +12,11 @@ RUN git clone --recurse-submodules -j8 --depth 1 https://github.com/NodeBB/NodeB
 RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bash -c 'echo "Deleting {}"; rm -rf {}' \;
 
 RUN rm -rf /node-bb/install/docker/entrypoint.sh
+RUN rm -rf /node-bb/docker-compose.yml
+RUN rm -rf /node-bb/Dockerfile
+
 RUN sed -i 's|"\*/jquery":|"jquery":|g' /node-bb/install/package.json
 RUN sed -i "s/'X-Powered-By': encodeURI(meta.config\['powered-by'\] || 'NodeBB'),//g" /node-bb/src/middleware/headers.js
-
-COPY entrypoint.sh /node-bb/install/docker/entrypoint.sh
 
 RUN chown -R ${USER}:${USER} /node-bb/
 RUN apt-get update
@@ -65,9 +66,10 @@ COPY --from=node_modules-touch --chown=${USER}:${USER} /usr/src/app/ /usr/src/ap
 COPY --from=git --chown=${USER}:${USER} /node-bb/ /usr/src/app/
 COPY --from=git --chown=${USER}:${USER} /node-bb/install/docker/setup.json /usr/src/app/setup.json
 COPY --from=git --chown=${USER}:${USER} /usr/bin/tini /usr/bin/tini
+COPY --chown=${USER}:${USER} docker-entrypoint.sh /usr/local/bin/
 
 USER ${USER}
 
 EXPOSE 4567
 VOLUME ["/usr/src/app/"]
-ENTRYPOINT ["tini", "--", "install/docker/entrypoint.sh"]
+ENTRYPOINT ["tini", "--", "docker-entrypoint.sh"]

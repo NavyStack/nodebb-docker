@@ -7,25 +7,21 @@ services:
     image: navystack/nodebb:3.6.5
     volumes:
       - nodebb-data:/usr/src/app
-    environment:
-      CONFIG_DIR: /usr/src/app
-
+      - ./setup.json:/usr/src/app/setup.json
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik-network'
+      - 'traefik.http.services.nodebb.loadbalancer.server.port=4567'
+      - 'traefik.http.services.nodebb.loadbalancer.passhostheader=true'
+      - 'traefik.http.routers.nodebb-rt.entrypoints=websecure'
+      - 'traefik.http.routers.nodebb-rt.rule=Host(`example.com`) || Host(`www.example.com`)'
+      - 'traefik.http.routers.nodebb-rt.service=nodebb'
+      - 'traefik.http.routers.nodebb-rt.middlewares=www-to-Root@file, security-headers@file, websocket@file'
+      - 'traefik.http.routers.nodebb-rt.tls=true'
+      - 'traefik.http.routers.nodebb-rt.tls.certresolver=letsencrypt'
     networks:
       - traefik-network
       - interanl
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
-
-      - "traefik.http.services.nodebb.loadbalancer.server.port=4567"
-      - "traefik.http.services.nodebb.loadbalancer.passhostheader=true"
-
-      - "traefik.http.routers.nodebb-rt.entrypoints=websecure"
-      - "traefik.http.routers.nodebb-rt.rule=Host(`example.com`) || Host(`www.example.com`)"
-      - "traefik.http.routers.nodebb-rt.service=nodebb"
-      - "traefik.http.routers.nodebb-rt.middlewares=www-to-Root@file, security-headers@file, websocket@file"
-      - "traefik.http.routers.nodebb-rt.tls=true"
-      - "traefik.http.routers.nodebb-rt.tls.certresolver=letsencrypt"
 
   mongo:
     container_name: mongo
@@ -33,7 +29,7 @@ services:
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: nodebb
-      MONGO_INITDB_ROOT_PASSWORD: nodebb
+      MONGO_INITDB_ROOT_PASSWORD: TwDOp3phPKTvLG9we4rjx3xdJmlD51
       MONGO_INITDB_DATABASE: nodebb
     volumes:
       - mongo-data:/data/db
@@ -42,8 +38,13 @@ services:
       - interanl
 
 volumes:
-  nodebb-data:
   mongo-data:
+  nodebb-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./data/
 
 networks:
   traefik-network:
