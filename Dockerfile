@@ -50,8 +50,11 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 
 FROM node:lts-slim AS final
 ARG USER=nodebb UID=1001 GID=1001
-ENV NODE_ENV=production daemon=false silent=false PNPM_HOME="/pnpm" PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+ENV NODE_ENV=production \
+    daemon=false \
+    silent=false \
+    PNPM_HOME="/pnpm" \
+    PATH="$PNPM_HOME:$PATH"
 
 WORKDIR /usr/src/app/
 
