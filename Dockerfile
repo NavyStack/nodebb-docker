@@ -69,7 +69,8 @@ WORKDIR /usr/src/app/
 RUN corepack enable \
   && groupadd --gid $GID $USER \
   && useradd --uid $UID --gid $GID --home-dir /usr/src/app/ --shell /bin/bash $USER \
-  && chown -R $USER:$USER /usr/src/app/
+  && mkdir -p /opt/config/database/mongo/data /opt/config/database/mongo/config \
+  && chown -R $USER:$USER /usr/src/app/ /opt/config/
 
 COPY --from=node_modules-touch --chown=$USER:$USER /usr/src/app/ /usr/src/app/
 COPY --from=git --chown=$USER:$USER /node-bb/ /usr/src/app/
@@ -80,5 +81,5 @@ COPY --chown=$USER:$USER docker-entrypoint.sh /usr/local/bin/
 USER $USER
 
 EXPOSE 4567
-VOLUME ["/usr/src/app/"]
+VOLUME ["/usr/src/app/","/usr/src/app/build","/usr/src/app/public/uploads", "/opt/config/"]
 ENTRYPOINT ["tini", "--", "docker-entrypoint.sh"]

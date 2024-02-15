@@ -9,10 +9,16 @@ SETUP="${SETUP:-}"
 
 # Ensure write access to the config directory
 mkdir -p "$CONFIG_DIR"
-chmod -fR 760 "$CONFIG_DIR" 2> /dev/null || { echo "Panic: No write permission for $CONFIG_DIR"; exit 1; }
+chmod -fR 760 "$CONFIG_DIR" 2> /dev/null || {
+  echo "Panic: No write permission for $CONFIG_DIR"
+  exit 1
+}
 
 # Check if required environment variables are set
-[[ -z $NODEBB_INIT_VERB ]] && { echo "Error: NODEBB_INIT_VERB is not set."; exit 1; }
+[[ -z $NODEBB_INIT_VERB ]] && {
+  echo "Error: NODEBB_INIT_VERB is not set."
+  exit 1
+}
 
 # Install dependencies
 pnpm install
