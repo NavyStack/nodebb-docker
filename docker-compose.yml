@@ -4,7 +4,7 @@ services:
   nodebb:
     container_name: nodebb
     restart: unless-stopped
-    image: navystack/nodebb:3.6.5
+    image: navystack/nodebb:3.6.6
     volumes:
       - nodebb-data:/usr/src/app
       - ./setup.json:/usr/src/app/setup.json
