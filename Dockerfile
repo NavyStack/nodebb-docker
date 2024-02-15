@@ -69,7 +69,8 @@ WORKDIR /usr/src/app/
 RUN corepack enable \
   && groupadd --gid $GID $USER \
   && useradd --uid $UID --gid $GID --home-dir /usr/src/app/ --shell /bin/bash $USER \
-  && mkdir -p /opt/config/database/mongo/data /opt/config/database/mongo/config \
+  && mkdir -p /opt/config/database/mongo/data/ /opt/config/database/mongo/config/ \
+  && mkdir -p /usr/src/app/build/ /usr/src/app/public/uploads/ \
   && chown -R $USER:$USER /usr/src/app/ /opt/config/
 
 COPY --from=node_modules-touch --chown=$USER:$USER /usr/src/app/ /usr/src/app/
