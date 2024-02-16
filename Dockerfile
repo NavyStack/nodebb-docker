@@ -1,79 +1,85 @@
 FROM node:latest AS git
-ENV USER=nodebb \
-    UID=1001 \
-    GID=1001
-RUN groupadd --gid $GID $USER
-RUN useradd --uid $UID --gid $GID --create-home --shell /bin/bash $USER
-
-WORKDIR /node-bb/
-
-RUN git clone --recurse-submodules -j8 --depth 1 https://github.com/NodeBB/NodeBB.git .
-RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bash -c 'echo "Deleting {}"; rm -rf {}' \;
-
-RUN rm -rf /node-bb/install/docker/entrypoint.sh
-RUN rm -rf /node-bb/docker-compose.yml
-RUN rm -rf /node-bb/Dockerfile
-
-RUN sed -i 's|"\*/jquery":|"jquery":|g' /node-bb/install/package.json
-
-RUN chown -R $USER:$USER /node-bb/
-RUN apt-get update
-RUN apt-get -y --no-install-recommends install tini
-
-# === 'git' stage complete! ===
-
-FROM node:latest AS node_modules-touch
 
 ENV PNPM_HOME="/pnpm" \
-    PATH="$PNPM_HOME:$PATH" \
-    USER=nodebb \
-    UID=1001 \
-    GID=1001
-
-RUN groupadd --gid $GID $USER
-RUN useradd --uid $UID --gid $GID --create-home --shell /bin/bash $USER
-
-COPY --from=git --chown=$USER:$USER /node-bb/install/package.json /usr/src/app/
+  PATH="$PNPM_HOME:$PATH" \
+  USER=nodebb \
+  UID=1001 \
+  GID=1001
 
 WORKDIR /usr/src/app/
 
-USER $USER
+RUN groupadd --gid ${GID} ${USER} \
+  && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
+  && chown -R ${USER}:${USER} /usr/src/app/
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-  npm install --omit=dev \
-  && pnpm import \
-  && pnpm install --prod --frozen-lockfile \
-  && rm -rf package-lock.json
+RUN apt-get update \
+  && apt-get -y --no-install-recommends install tini
 
-# === 'node_modules-touch' stage complete! ===
+USER ${USER}
 
-FROM node:lts-slim AS final
+RUN git clone --recurse-submodules -j8 --depth 1 https://github.com/NodeBB/NodeBB.git .
 
-ENV NODE_ENV=production \
-    daemon=false \
-    silent=false \
-    PNPM_HOME="/pnpm" \
-    PATH="$PNPM_HOME:$PATH" \
-    USER=nodebb \
-    UID=1001 \
-    GID=1001
+RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bash -c 'echo "Deleting {}"; rm -rf {}' \; \
+  && rm -rf install/docker/entrypoint.sh \
+  && rm -rf docker-compose.yml \
+  && rm -rf Dockerfile \
+  && sed -i 's|"\*/jquery":|"jquery":|g' install/package.json
+
+FROM node:latest AS node_modules_touch
+
+ENV PNPM_HOME="/pnpm" \
+  PATH="$PNPM_HOME:$PATH" \
+  USER=nodebb \
+  UID=1001 \
+  GID=1001
 
 WORKDIR /usr/src/app/
 
 RUN corepack enable \
-  && groupadd --gid $GID $USER \
-  && useradd --uid $UID --gid $GID --home-dir /usr/src/app/ --shell /bin/bash $USER \
-  && mkdir -p /opt/config/database/mongo/data /opt/config/database/mongo/config \
-  && chown -R $USER:$USER /usr/src/app/ /opt/config/
+  && groupadd --gid ${GID} ${USER} \
+  && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
+  && chown -R ${USER}:${USER} /usr/src/app/
 
-COPY --from=node_modules-touch --chown=$USER:$USER /usr/src/app/ /usr/src/app/
-COPY --from=git --chown=$USER:$USER /node-bb/ /usr/src/app/
-COPY --from=git --chown=$USER:$USER /node-bb/install/docker/setup.json /usr/src/app/setup.json
-COPY --from=git --chown=$USER:$USER /usr/bin/tini /usr/bin/tini
-COPY --chown=$USER:$USER docker-entrypoint.sh /usr/local/bin/
+COPY --from=git --chown=${USER}:${USER} /usr/src/app/install/package.json /usr/src/app/
 
-USER $USER
+USER ${USER}
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+  npm install --omit=dev \
+  && pnpm import \
+  && pnpm install --prod --frozen-lockfile
+
+FROM node:lts-slim AS final
+
+ENV NODE_ENV=production \
+  DAEMON=false \
+  SILENT=false \
+  PNPM_HOME="/pnpm" \
+  PATH="$PNPM_HOME:$PATH" \
+  USER=nodebb \
+  UID=1001 \
+  GID=1001
+
+WORKDIR /usr/src/app/
+
+RUN corepack enable \
+  && groupadd --gid ${GID} ${USER} \
+  && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
+  && mkdir -p /opt/config/database/mongo/data/ /opt/config/database/mongo/config/ /usr/src/app/logs/ \
+  && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
+
+COPY --from=node_modules_touch --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/
+COPY --from=git --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/
+COPY --from=git --chown=${USER}:${USER} /usr/src/app/install/docker/setup.json /usr/src/app/setup.json
+COPY --from=git --chown=${USER}:${USER} /usr/bin/tini /usr/bin/tini
+COPY --chown=${USER}:${USER} docker-entrypoint.sh /usr/local/bin/
+
+USER ${USER}
 
 EXPOSE 4567
-VOLUME ["/usr/src/app/"]
+
+VOLUME ["/usr/src/app/node_modules", "/usr/src/app/build", "/usr/src/app/public/uploads", "/opt/config/"]
+
 ENTRYPOINT ["tini", "--", "docker-entrypoint.sh"]
+## ENTRYPOINT ["tini", "--"]
+## CMD ["start.sh"]

@@ -67,19 +67,6 @@ jobs:
           username: ${{ env.REPO_OWNER_LOWERCASE }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push ( MongoDB )
-        uses: docker/build-push-action@v5
-        with:
-          file: mongo.Dockerfile
-          tags: |
-            navystack/nodebb:mongo7-latest
-            navystack/nodebb:mongo7-${{ env.CURRENT_DATE_KST }}
-            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:mongo7-latest-${{ env.CURRENT_DATE_KST }}
-            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:mongo7-latest
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-          outputs: type=image,compression=zstd,compression-level=22,force-compression=true,push=true
-
       - name: Build and push ( NodeBB )
         uses: docker/build-push-action@v5
         with:

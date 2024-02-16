@@ -4,10 +4,15 @@ services:
   nodebb:
     container_name: nodebb
     restart: unless-stopped
-    image: rest
+    image: navystack/nodebb:3.6.6
+    depends_on:
+      - postgres
     volumes:
-      - nodebb-data:/usr/src/app
       - ./setup.json:/usr/src/app/setup.json
+      - nodebb-config:/opt/config
+      - nodebb-build:/usr/src/app/build
+      - nodebb-uploads:/usr/src/app/public/uploads
+      - nodebb-modules:/usr/src/app/node_modules
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=traefik-network'
@@ -18,30 +23,43 @@ services:
       - 'traefik.http.routers.nodebb-rt.service=nodebb'
       - 'traefik.http.routers.nodebb-rt.middlewares=www-to-Root@file, security-headers@file, websocket@file'
       - 'traefik.http.routers.nodebb-rt.tls=true'
-      - "traefik.http.routers.nodebb-rt.tls.certresolver=letscrypt"
-      - "traefik.http.routers.nodebb-rt.tls.domains[0].main=navystack.com"
-      - "traefik.http.routers.nodebb-rt.tls.domains[0].sans=*.navystack.com"
     networks:
       - traefik-network
       - interanl
 
-  mongo:
-    container_name: mongo
-    image: navystack/nodebb:mongo7-latest
+  postgres:
+    image: postgres:16
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: nodebb
-      MONGO_INITDB_ROOT_PASSWORD: TwDOp3phPKTvLG9we4rjx3xdJmlD51
-      MONGO_INITDB_DATABASE: nodebb
+      POSTGRES_USER: nodebb
+      POSTGRES_PASSWORD: VKSl2cYx7kD8hSL2s42xuDT7vqYDVp
+      POSTGRES_DB: nodebb
     volumes:
-      - mongo-data:/data/db
-      - ./nodebb-mongo-init.js:/docker-entrypoint-initdb.d/user-init.js
+      - pgsql-data:/var/lib/postgresql/data
     networks:
       - interanl
 
 volumes:
-  mongo-data:
-  nodebb-data:
+  pgsql-data:
+  nodebb-config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./config/
+  nodebb-build:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./build/
+  nodebb-uploads:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./uploads/
+  nodebb-modules:
 
 networks:
   traefik-network:
