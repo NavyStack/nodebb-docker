@@ -4,7 +4,7 @@ services:
   nodebb:
     container_name: nodebb
     restart: unless-stopped
-    image: navystack/nodebb:3.6.5
+    image: rest
     volumes:
       - nodebb-data:/usr/src/app
       - ./setup.json:/usr/src/app/setup.json
@@ -14,11 +14,13 @@ services:
       - 'traefik.http.services.nodebb.loadbalancer.server.port=4567'
       - 'traefik.http.services.nodebb.loadbalancer.passhostheader=true'
       - 'traefik.http.routers.nodebb-rt.entrypoints=websecure'
-      - 'traefik.http.routers.nodebb-rt.rule=Host(`example.com`) || Host(`www.example.com`)'
+      - 'traefik.http.routers.nodebb-rt.rule=Host(`navystack.com`) || Host(`www.navystack.com`)'
       - 'traefik.http.routers.nodebb-rt.service=nodebb'
       - 'traefik.http.routers.nodebb-rt.middlewares=www-to-Root@file, security-headers@file, websocket@file'
       - 'traefik.http.routers.nodebb-rt.tls=true'
-      - 'traefik.http.routers.nodebb-rt.tls.certresolver=letsencrypt'
+      - "traefik.http.routers.nodebb-rt.tls.certresolver=letscrypt"
+      - "traefik.http.routers.nodebb-rt.tls.domains[0].main=navystack.com"
+      - "traefik.http.routers.nodebb-rt.tls.domains[0].sans=*.navystack.com"
     networks:
       - traefik-network
       - interanl
@@ -40,11 +42,6 @@ services:
 volumes:
   mongo-data:
   nodebb-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./data/
 
 networks:
   traefik-network:

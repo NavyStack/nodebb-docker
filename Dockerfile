@@ -1,10 +1,9 @@
 FROM node:latest AS git
-ARG USER=nodebb \
-  UID=1001 \
-  GID=1001
-
-RUN groupadd --gid ${GID} ${USER}
-RUN useradd --uid ${UID} --gid ${GID} --create-home --shell /bin/bash ${USER}
+ENV USER=nodebb \
+    UID=1001 \
+    GID=1001
+RUN groupadd --gid $GID $USER
+RUN useradd --uid $UID --gid $GID --create-home --shell /bin/bash $USER
 
 WORKDIR /node-bb/
 
@@ -17,7 +16,7 @@ RUN rm -rf /node-bb/Dockerfile
 
 RUN sed -i 's|"\*/jquery":|"jquery":|g' /node-bb/install/package.json
 
-RUN chown -R ${USER}:${USER} /node-bb/
+RUN chown -R $USER:$USER /node-bb/
 RUN apt-get update
 RUN apt-get -y --no-install-recommends install tini
 
@@ -25,20 +24,20 @@ RUN apt-get -y --no-install-recommends install tini
 
 FROM node:latest AS node_modules-touch
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+ENV PNPM_HOME="/pnpm" \
+    PATH="$PNPM_HOME:$PATH" \
+    USER=nodebb \
+    UID=1001 \
+    GID=1001
 
-ARG USER=nodebb UID=1001 GID=1001
+RUN groupadd --gid $GID $USER
+RUN useradd --uid $UID --gid $GID --create-home --shell /bin/bash $USER
 
-RUN groupadd --gid ${GID} ${USER}
-RUN useradd --uid ${UID} --gid ${GID} --create-home --shell /bin/bash ${USER}
-
-COPY --from=git --chown=${USER}:${USER} /node-bb/install/package.json /usr/src/app/
+COPY --from=git --chown=$USER:$USER /node-bb/install/package.json /usr/src/app/
 
 WORKDIR /usr/src/app/
 
-USER ${USER}
+USER $USER
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   npm install --omit=dev \
@@ -49,28 +48,31 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 # === 'node_modules-touch' stage complete! ===
 
 FROM node:lts-slim AS final
-ARG USER=nodebb UID=1001 GID=1001
+
 ENV NODE_ENV=production \
     daemon=false \
     silent=false \
     PNPM_HOME="/pnpm" \
-    PATH="$PNPM_HOME:$PATH"
+    PATH="$PNPM_HOME:$PATH" \
+    USER=nodebb \
+    UID=1001 \
+    GID=1001
 
 WORKDIR /usr/src/app/
 
 RUN corepack enable \
-  && groupadd --gid ${GID} ${USER} \
-  && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
+  && groupadd --gid $GID $USER \
+  && useradd --uid $UID --gid $GID --home-dir /usr/src/app/ --shell /bin/bash $USER \
   && mkdir -p /opt/config/database/mongo/data /opt/config/database/mongo/config \
-  && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
+  && chown -R $USER:$USER /usr/src/app/ /opt/config/
 
-COPY --from=node_modules-touch --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/
-COPY --from=git --chown=${USER}:${USER} /node-bb/ /usr/src/app/
-COPY --from=git --chown=${USER}:${USER} /node-bb/install/docker/setup.json /usr/src/app/setup.json
-COPY --from=git --chown=${USER}:${USER} /usr/bin/tini /usr/bin/tini
-COPY --chown=${USER}:${USER} docker-entrypoint.sh /usr/local/bin/
+COPY --from=node_modules-touch --chown=$USER:$USER /usr/src/app/ /usr/src/app/
+COPY --from=git --chown=$USER:$USER /node-bb/ /usr/src/app/
+COPY --from=git --chown=$USER:$USER /node-bb/install/docker/setup.json /usr/src/app/setup.json
+COPY --from=git --chown=$USER:$USER /usr/bin/tini /usr/bin/tini
+COPY --chown=$USER:$USER docker-entrypoint.sh /usr/local/bin/
 
-USER ${USER}
+USER $USER
 
 EXPOSE 4567
 VOLUME ["/usr/src/app/"]
