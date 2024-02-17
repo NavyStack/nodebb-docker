@@ -1,9 +1,6 @@
-name: Docker Image CI
+name: Docker Image CI Korean Fast forward
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
 
 jobs:
@@ -28,17 +25,6 @@ jobs:
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
-        with:
-          images: |
-            navystack/nodebb
-            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=${{ env.CURRENT_DATE_KST }}
-          flavor: |
-            latest=true
 
       - name: Set up SSH
         uses: MrSquaare/ssh-setup-action@v3
@@ -70,8 +56,12 @@ jobs:
       - name: Build and push ( NodeBB )
         uses: docker/build-push-action@v5
         with:
-          file: Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
+          file: ko.Dockerfile
+          tags: |
+            navystack/nodebb:fast-forward
+            navystack/nodebb:fast-forward-${{ env.CURRENT_DATE_KST }}
+            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:fast-forward
+            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:fast-forward-${{ env.CURRENT_DATE_KST }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           outputs: type=image,push=true

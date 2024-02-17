@@ -18,7 +18,7 @@ RUN apt-get update \
 
 USER ${USER}
 
-RUN git clone --recurse-submodules -j8 --depth 1 https://github.com/NodeBB/NodeBB.git .
+RUN git clone --recurse-submodules -j8 --depth 1 https://github.com/NavyStack/nodebb.git .
 
 RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bash -c 'echo "Deleting {}"; rm -rf {}' \; \
   && rm -rf install/docker/entrypoint.sh \

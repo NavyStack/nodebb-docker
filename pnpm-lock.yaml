@@ -8,16 +8,38 @@ devDependencies:
   prettier:
     specifier: ^3.2.5
     version: 3.2.5
+  prettier-plugin-astro:
+    specifier: ^0.13.0
+    version: 0.13.0
   prettier-plugin-sh:
     specifier: ^0.14.0
     version: 0.14.0(prettier@3.2.5)
 
 packages:
+  /@astrojs/compiler@1.8.2:
+    resolution:
+      {
+        integrity: sha512-o/ObKgtMzl8SlpIdzaxFnt7SATKPxu4oIP/1NL+HDJRzxfJcAkOTAb/ZKMRyULbz4q+1t2/DAebs2Z1QairkZw==
+      }
+    dev: true
+
   /mvdan-sh@0.10.1:
     resolution:
       {
         integrity: sha512-kMbrH0EObaKmK3nVRKUIIya1dpASHIEusM13S4V1ViHFuxuNxCo+arxoa6j/dbV22YBGjl7UKJm9QQKJ2Crzhg==
       }
+    dev: true
+
+  /prettier-plugin-astro@0.13.0:
+    resolution:
+      {
+        integrity: sha512-5HrJNnPmZqTUNoA97zn4gNQv9BgVhv+et03314WpQ9H9N8m2L9OSV798olwmG2YLXPl1iSstlJCR1zB3x5xG4g==
+      }
+    engines: { node: ^14.15.0 || >=16.0.0 }
+    dependencies:
+      '@astrojs/compiler': 1.8.2
+      prettier: 3.2.5
+      sass-formatter: 0.7.9
     dev: true
 
   /prettier-plugin-sh@0.14.0(prettier@3.2.5):
@@ -43,6 +65,22 @@ packages:
     hasBin: true
     dev: true
 
+  /s.color@0.0.15:
+    resolution:
+      {
+        integrity: sha512-AUNrbEUHeKY8XsYr/DYpl+qk5+aM+DChopnWOPEzn8YKzOhv4l2zH6LzZms3tOZP3wwdOyc0RmTciyi46HLIuA==
+      }
+    dev: true
+
+  /sass-formatter@0.7.9:
+    resolution:
+      {
+        integrity: sha512-CWZ8XiSim+fJVG0cFLStwDvft1VI7uvXdCNJYXhDvowiv+DsbD1nXLiQ4zrE5UBvj5DWZJ93cwN0NX5PMsr1Pw==
+      }
+    dependencies:
+      suf-log: 2.5.3
+    dev: true
+
   /sh-syntax@0.4.2:
     resolution:
       {
@@ -51,6 +89,15 @@ packages:
     engines: { node: '>=16.0.0' }
     dependencies:
       tslib: 2.6.2
+    dev: true
+
+  /suf-log@2.5.3:
+    resolution:
+      {
+        integrity: sha512-KvC8OPjzdNOe+xQ4XWJV2whQA0aM1kGVczMQ8+dStAO6KfEB140JEVQ9dE76ONZ0/Ylf67ni4tILPJB41U0eow==
+      }
+    dependencies:
+      s.color: 0.0.15
     dev: true
 
   /tslib@2.6.2:

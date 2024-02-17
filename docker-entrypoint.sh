@@ -10,6 +10,7 @@ set_defaults() {
   export START_BUILD="${START_BUILD:-false}"
   export SETUP="${SETUP:-}"
   export PACKAGE_MANAGER="${PACKAGE_MANAGER:-pnpm}"
+  export OVERRIDE_UPDATE_LOCK="${OVERRIDE_UPDATE_LOCK:-false}"
 }
 
 # Function to check if a directory exists and is writable
@@ -46,11 +47,11 @@ copy_or_link_files() {
   esac
 
   # Copy package.json and the appropriate lock file only to dest_dir if they don't exist there
-  if [ ! -f "$dest_dir/package.json" ]; then
+  if [ "$OVERRIDE_UPDATE_LOCK" = true ] || [ ! -f "$dest_dir/package.json" ]; then
     cp "$src_dir/package.json" "$dest_dir/package.json"
   fi
 
-  if [ ! -f "$dest_dir/$lock_file" ]; then
+  if [ "$OVERRIDE_UPDATE_LOCK" = true ] || [ ! -f "$dest_dir/$lock_file" ]; then
     cp "$src_dir/$lock_file" "$dest_dir/$lock_file"
   fi
 

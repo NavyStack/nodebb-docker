@@ -5,3 +5,8 @@ data
 config
 uploads
 build
+.docker
+*.md
+docker-compose-dev.yml
+nodebb-mongo-init-dev.js
+nginx
