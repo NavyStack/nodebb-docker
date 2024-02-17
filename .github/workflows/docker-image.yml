@@ -74,4 +74,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          outputs: type=image,compression=zstd,compression-level=22,force-compression=true,push=true
+          outputs: type=image,push=true
