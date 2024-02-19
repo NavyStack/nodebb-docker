@@ -48,7 +48,8 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   npm install --omit=dev \
   && pnpm import \
   && pnpm install --prod --frozen-lockfile \
-  && npm cache clean --force
+  && npm cache clean --force \
+  && rm -rf /usr/src/app/node_modules/.ignored_*
 
 FROM node:lts-slim AS final
 
