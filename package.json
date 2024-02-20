@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "t1": "prettier --write ."
+    "t1": "prettier --write .",
+    "t3": "prettier --write '/home/ubuntu/github/nodebb-docker/build/public/language/ko/**/*' --ignore-path none"
   },
   "keywords": [],
   "author": "NavyStack <137406386+Navystack@users.noreply.github.com>",

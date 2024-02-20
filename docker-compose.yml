@@ -5,8 +5,6 @@ services:
     container_name: nodebb
     restart: unless-stopped
     image: navystack/nodebb:3.6.6
-    depends_on:
-      - postgres
     volumes:
       - ./setup.json:/usr/src/app/setup.json
       - nodebb-config:/opt/config
@@ -27,20 +25,42 @@ services:
       - traefik-network
       - interanl
 
-  postgres:
-    image: postgres:16
+  mongo:
+    container_name: mongo
+    image: navystack/nodebb:mongo7-latest
     restart: unless-stopped
     environment:
-      POSTGRES_USER: nodebb
-      POSTGRES_PASSWORD: VKSl2cYx7kD8hSL2s42xuDT7vqYDVp
-      POSTGRES_DB: nodebb
+      MONGO_INITDB_ROOT_USERNAME: navystack-mongo
+      MONGO_INITDB_ROOT_PASSWORD: lyFn5aQepK5Q8e6o6GC5HgvWktE2vb
+      MONGO_INITDB_DATABASE: navystack-mongo
     volumes:
-      - pgsql-data:/var/lib/postgresql/data
+      - mongo-data:/data/db
+      - ./nodebb-mongo-init.js:/docker-entrypoint-initdb.d/user-init.js
+    networks:
+      - interanl
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: navystack-mongo
+      ME_CONFIG_MONGODB_ADMINPASSWORD: lyFn5aQepK5Q8e6o6GC5HgvWktE2vb
+      ME_CONFIG_MONGODB_SERVER: mongo
+    networks:
+      - interanl
+
+  redis:
+    image: redis:7.2.3-alpine
+    restart: unless-stopped
+    volumes:
+      - ./.docker/database/redis:/data
     networks:
       - interanl
 
 volumes:
-  pgsql-data:
   nodebb-config:
     driver: local
     driver_opts:
@@ -60,6 +80,7 @@ volumes:
       type: none
       device: ./uploads/
   nodebb-modules:
+  mongo-data:
 
 networks:
   traefik-network:

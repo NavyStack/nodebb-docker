@@ -2,9 +2,9 @@
   "mongo": {
     "host": "mongo",
     "port": 27017,
-    "database": "nodebb",
-    "username": "mongodb-user",
-    "password": "3WbXE0W67LUNHVXZEjjiWSs6VKrpzU"
+    "database": "askfront-mongo",
+    "username": "askfront-mongo",
+    "password": "lyFn5aQepK5Q8e6o6GC5HgvWktE2vb"
   },
   "redis": {
     "host": "redis",
