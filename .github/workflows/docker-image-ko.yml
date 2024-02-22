@@ -1,0 +1,67 @@
+name: Docker Image CI Korean Fast forward
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_VERSION }}
+
+      - name: Set version based on tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Get current date in KST
+        run: echo "CURRENT_DATE_KST=$(date +'%Y%m%d-%H%M%S' -d '+9 hours')" >> $GITHUB_ENV
+
+      - name: Set lowercase repository owner
+        run: |
+          repo_owner_lowercase=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_OWNER_LOWERCASE=$repo_owner_lowercase" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+
+      - name: Set up SSH
+        uses: MrSquaare/ssh-setup-action@v3
+        with:
+          host: ${{ secrets.SSH_ARM64_RUNNER }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY_ARM64_RUNNER }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          endpoint: ${{ secrets.AMD64_RUNNER_ENDPOINT }}
+          append: |
+            - endpoint: ${{ secrets.ARM64_RUNNER_ENDPOINT }}
+              platforms: linux/arm64
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.REPO_OWNER_LOWERCASE }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push ( NodeBB )
+        uses: docker/build-push-action@v5
+        with:
+          file: ko.Dockerfile
+          tags: |
+            navystack/nodebb:fast-forward
+            navystack/nodebb:fast-forward-${{ env.CURRENT_DATE_KST }}
+            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:fast-forward
+            ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:fast-forward-${{ env.CURRENT_DATE_KST }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          outputs: type=image,push=true
