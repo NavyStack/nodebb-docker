@@ -4,7 +4,8 @@ ENV PNPM_HOME="/pnpm" \
   PATH="$PNPM_HOME:$PATH" \
   USER=nodebb \
   UID=1001 \
-  GID=1001
+  GID=1001 \
+  TZ="Asia/Seoul"
 
 WORKDIR /usr/src/app/
 
@@ -31,7 +32,8 @@ ENV PNPM_HOME="/pnpm" \
   PATH="$PNPM_HOME:$PATH" \
   USER=nodebb \
   UID=1001 \
-  GID=1001
+  GID=1001 \
+  TZ="Asia/Seoul"
 
 WORKDIR /usr/src/app/
 
@@ -60,7 +62,8 @@ ENV NODE_ENV=production \
   PATH="$PNPM_HOME:$PATH" \
   USER=nodebb \
   UID=1001 \
-  GID=1001
+  GID=1001 \
+  TZ="Asia/Seoul"
 
 WORKDIR /usr/src/app/
 
