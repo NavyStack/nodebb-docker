@@ -12,7 +12,7 @@ set_defaults() {
 }
 ```
 
-see environment
+see environments
 
 ## Simple Start
 
