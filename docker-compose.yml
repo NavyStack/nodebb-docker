@@ -23,9 +23,6 @@ services:
       - 'traefik.http.routers.nodebb-rt.service=nodebb'
       - 'traefik.http.routers.nodebb-rt.middlewares=www-to-Root@file, security-headers@file, websocket@file'
       - 'traefik.http.routers.nodebb-rt.tls=true'
-      - 'traefik.http.routers.nodebb-rt.tls.certresolver=letscrypt'
-      - 'traefik.http.routers.nodebb-rt.tls.domains[0].main=navystack.com'
-      - 'traefik.http.routers.nodebb-rt.tls.domains[0].sans=*.navystack.com'
     networks:
       - traefik-network
       - interanl

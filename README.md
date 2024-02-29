@@ -1,7 +1,18 @@
 # nodebb-docker
 
-> [!WARNING]
-> NOW IT IS IN "WIP" to fine tune
+```bash
+set_defaults() {
+  export CONFIG_DIR="${CONFIG_DIR:-/opt/config}"
+  export CONFIG="$CONFIG_DIR/config.json"
+  export NODEBB_INIT_VERB="${NODEBB_INIT_VERB:-install}"
+  export START_BUILD="${START_BUILD:-false}"
+  export SETUP="${SETUP:-}"
+  export PACKAGE_MANAGER="${PACKAGE_MANAGER:-pnpm}"
+  export OVERRIDE_UPDATE_LOCK="${OVERRIDE_UPDATE_LOCK:-false}"
+}
+```
+
+see environment
 
 ## Simple Start
 
