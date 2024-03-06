@@ -7,6 +7,10 @@ uploads
 build
 .docker
 *.md
-docker-compose-dev.yml
+docker-compose-*.yml
 nodebb-mongo-init-dev.js
+setup-dev.json
 nginx
+mongo-data
+askfront
+*.pem
