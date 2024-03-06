@@ -63,5 +63,5 @@ jobs:
             ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:fast-forward
             ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker:fast-forward-${{ env.CURRENT_DATE_KST }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
           outputs: type=image,push=true
