@@ -53,6 +53,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     @nodebb/nodebb-plugin-reactions \
     nodebb-plugin-adsense \
     nodebb-plugin-extended-markdown \
+    nodebb-plugin-meilisearch \
     nodebb-plugin-question-and-answer \
     nodebb-plugin-sso-github \
   && pnpm install --prod --frozen-lockfile \
