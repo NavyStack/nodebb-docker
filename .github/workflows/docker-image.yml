@@ -73,7 +73,18 @@ jobs:
           file: Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           outputs: type=image,push=true
-          cache-from: type=registry,ref=navystack/nodebb:buildcache
-          cache-to: type=registry,ref=navystack/nodebb:buildcache
+          cache-from: type=registry,ref=navystack/nodebb:buildcache-arm64
+          cache-to: type=registry,ref=navystack/nodebb:buildcache-arm64
+
+      - name: Build and push ( NodeBB )
+        uses: docker/build-push-action@v5
+        with:
+          file: Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64
+          outputs: type=image,push=true
+          cache-from: type=registry,ref=navystack/nodebb:buildcache-amd64
+          cache-to: type=registry,ref=navystack/nodebb:buildcache-amd64
