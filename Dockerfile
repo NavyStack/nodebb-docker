@@ -1,4 +1,4 @@
-FROM node:latest AS git
+FROM node:lts AS git
 
 ENV PNPM_HOME="/pnpm" \
   PATH="$PNPM_HOME:$PATH" \
@@ -26,7 +26,7 @@ RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bas
   && rm -rf Dockerfile \
   && sed -i 's|"\*/jquery":|"jquery":|g' install/package.json
 
-FROM node:latest AS node_modules_touch
+FROM node:lts AS node_modules_touch
 
 ENV PNPM_HOME="/pnpm" \
   PATH="$PNPM_HOME:$PATH" \
@@ -48,6 +48,7 @@ USER ${USER}
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   npm install --package-lock-only --omit=dev \
+  && npm cache clear --force \
   && pnpm import \
   && pnpm install \
     @nodebb/nodebb-plugin-reactions \
@@ -55,7 +56,8 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     nodebb-plugin-extended-markdown \
     nodebb-plugin-meilisearch \
     nodebb-plugin-question-and-answer \
-    nodebb-plugin-sso-github
+    nodebb-plugin-sso-github \
+  && pnpm install --prod --frozen-lockfile -r
 
 FROM node:lts-slim AS final
 
@@ -74,7 +76,7 @@ WORKDIR /usr/src/app/
 RUN corepack enable \
   && groupadd --gid ${GID} ${USER} \
   && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
-  && mkdir -p /opt/config/database/mongo/data/ /opt/config/database/mongo/config/ /usr/src/app/logs/ \
+  && mkdir -p /usr/src/app/logs/ \
   && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
 
 COPY --from=node_modules_touch --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/
