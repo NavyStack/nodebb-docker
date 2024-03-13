@@ -14,5 +14,8 @@
     "prettier": "^3.2.5",
     "prettier-plugin-astro": "^0.13.0",
     "prettier-plugin-sh": "^0.14.0"
+  },
+  "dependencies": {
+    "highlight.js": "^11.9.0"
   }
 }

@@ -57,6 +57,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     nodebb-plugin-meilisearch \
     nodebb-plugin-question-and-answer \
     nodebb-plugin-sso-github \
+    highlight.js \
   && pnpm install --prod --frozen-lockfile -r
 
 FROM node:lts-slim AS final
