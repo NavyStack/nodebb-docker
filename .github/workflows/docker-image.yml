@@ -76,4 +76,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           outputs: type=image,push=true
           cache-from: type=registry,ref=navystack/nodebb:buildcache
-          cache-to: type=registry,ref=image:buildcache
+          cache-to: type=registry,ref=navystack/nodebb:buildcache
