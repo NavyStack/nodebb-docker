@@ -53,7 +53,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   && pnpm install \
     @nodebb/nodebb-plugin-reactions \
     nodebb-plugin-adsense \
-    nodebb-plugin-ws-extended-markdown \
+    nodebb-plugin-extended-markdown \
     nodebb-plugin-meilisearch \
     nodebb-plugin-question-and-answer \
     nodebb-plugin-sso-github \
