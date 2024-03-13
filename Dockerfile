@@ -47,7 +47,7 @@ COPY --from=git --chown=${USER}:${USER} /usr/src/app/install/package.json /usr/s
 USER ${USER}
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-  npm install --omit=dev \
+  npm install --package-lock-only --omit=dev \
   && pnpm import \
   && pnpm install \
     @nodebb/nodebb-plugin-reactions \
