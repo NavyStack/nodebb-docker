@@ -47,14 +47,17 @@ COPY --from=git --chown=${USER}:${USER} /usr/src/app/install/package.json /usr/s
 USER ${USER}
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-  npm install \
+  npm install --omit=dev \
+  && pnpm import \
+  && pnpm install \
     @nodebb/nodebb-plugin-reactions \
     nodebb-plugin-adsense \
     nodebb-plugin-extended-markdown \
     nodebb-plugin-meilisearch \
     nodebb-plugin-question-and-answer \
     nodebb-plugin-sso-github \
-  && pnpm import \
+    highlight.js \
+    screenfull \
   && pnpm install --prod --frozen-lockfile
 
 FROM node:lts-slim AS final
