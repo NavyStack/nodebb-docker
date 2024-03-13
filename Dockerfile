@@ -49,13 +49,6 @@ USER ${USER}
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   npm install --package-lock-only --omit=dev \
   && pnpm import \
-  && pnpm install \
-    @nodebb/nodebb-plugin-reactions \
-    nodebb-plugin-adsense \
-    nodebb-plugin-extended-markdown \
-    nodebb-plugin-meilisearch \
-    nodebb-plugin-question-and-answer \
-    nodebb-plugin-sso-github \
   && pnpm install --prod --frozen-lockfile \
   && npm cache clean --force \
   && rm -rf /usr/src/app/node_modules/.ignored_*
