@@ -76,7 +76,7 @@ WORKDIR /usr/src/app/
 RUN corepack enable \
   && groupadd --gid ${GID} ${USER} \
   && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
-  && mkdir -p /usr/src/app/logs/ \
+  && mkdir -p /usr/src/app/logs/ /opt/config/ \
   && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
 
 COPY --from=node_modules_touch --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/
