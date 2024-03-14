@@ -46,12 +46,12 @@ copy_or_link_files() {
       ;;
   esac
 
-  # Copy package.json and the appropriate lock file only to dest_dir if they don't exist there
-  if [ "$OVERRIDE_UPDATE_LOCK" = true ] || [ ! -f "$dest_dir/package.json" ]; then
+  # Check if source and destination files are the same
+  if [ "$(realpath "$src_dir/package.json")" != "$(realpath "$dest_dir/package.json")" ]; then
     cp "$src_dir/package.json" "$dest_dir/package.json"
   fi
 
-  if [ "$OVERRIDE_UPDATE_LOCK" = true ] || [ ! -f "$dest_dir/$lock_file" ]; then
+  if [ "$(realpath "$src_dir/$lock_file")" != "$(realpath "$dest_dir/$lock_file")" ]; then
     cp "$src_dir/$lock_file" "$dest_dir/$lock_file"
   fi
 
@@ -105,7 +105,31 @@ start_forum() {
       exit 1
     }
   fi
-  exec "$PACKAGE_MANAGER" start --config="$config" --no-silent --no-daemon
+
+  case "$PACKAGE_MANAGER" in
+    yarn)
+      yarn start --config="$config" --no-silent --no-daemon || {
+        echo "Failed to start forum with yarn"
+        exit 1
+      }
+      ;;
+    npm)
+      npm start -- --config="$config" --no-silent --no-daemon || {
+        echo "Failed to start forum with npm"
+        exit 1
+      }
+      ;;
+    pnpm)
+      pnpm start -- --config="$config" --no-silent --no-daemon || {
+        echo "Failed to start forum with pnpm"
+        exit 1
+      }
+      ;;
+    *)
+      echo "Unknown package manager: $PACKAGE_MANAGER"
+      exit 1
+      ;;
+  esac
 }
 
 # Function to start installation session

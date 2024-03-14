@@ -54,8 +54,6 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     nodebb-plugin-meilisearch \
     nodebb-plugin-question-and-answer \
     nodebb-plugin-sso-github \
-    highlight.js \
-    screenfull \
   && npm install --package-lock-only --omit=dev
 
 FROM node:lts-slim AS final
