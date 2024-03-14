@@ -23,8 +23,8 @@ RUN git clone --recurse-submodules -j8 --depth 1 https://github.com/NodeBB/NodeB
 RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bash -c 'echo "Deleting {}"; rm -rf {}' \; \
   && rm -rf install/docker/entrypoint.sh \
   && rm -rf docker-compose.yml \
-  && rm -rf Dockerfile \
-  && sed -i 's|"\*/jquery":|"jquery":|g' install/package.json
+  && rm -rf Dockerfile
+  ## && sed -i 's|"\*/jquery":|"jquery":|g' install/package.json
 
 FROM node:lts AS node_modules_touch
 
@@ -55,7 +55,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     nodebb-plugin-question-and-answer \
     nodebb-plugin-sso-github \
   && npm install --package-lock-only --omit=dev
-
+  ## pnpm import \
+  ## && pnpm install --prod --frozen-lockfile
+  
 FROM node:lts-slim AS final
 
 ENV NODE_ENV=production \
