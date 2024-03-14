@@ -9,7 +9,7 @@ set_defaults() {
   export NODEBB_INIT_VERB="${NODEBB_INIT_VERB:-install}"
   export START_BUILD="${START_BUILD:-false}"
   export SETUP="${SETUP:-}"
-  export PACKAGE_MANAGER="${PACKAGE_MANAGER:-pnpm}"
+  export PACKAGE_MANAGER="${PACKAGE_MANAGER:-npm}"
   export OVERRIDE_UPDATE_LOCK="${OVERRIDE_UPDATE_LOCK:-false}"
 }
 
