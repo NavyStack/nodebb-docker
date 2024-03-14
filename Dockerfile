@@ -28,7 +28,8 @@ RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bas
 
 FROM node:lts AS node_modules_touch
 
-ENV PNPM_HOME="/pnpm" \
+ENV NODE_ENV=production \
+  PNPM_HOME="/pnpm" \
   PATH="$PNPM_HOME:$PATH" \
   USER=nodebb \
   UID=1001 \
