@@ -49,8 +49,6 @@ jobs:
           tags: |
             type=raw,value=1003
             type=raw,value=1003-${{ env.CURRENT_DATE_KST }}
-          flavor: |
-            latest=true
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
