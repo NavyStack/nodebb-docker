@@ -50,6 +50,16 @@ jobs:
             type=raw,value=1003
             type=raw,value=1003-${{ env.CURRENT_DATE_KST }}
 
+      - name: Docker meta
+        id: meta3
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            navystack/nodebb
+          tags: |
+            type=raw,value=1004
+            type=raw,value=1004-${{ env.CURRENT_DATE_KST }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -80,20 +90,29 @@ jobs:
           username: ${{ env.REPO_OWNER_LOWERCASE }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push ( NodeBB )
-        uses: docker/build-push-action@v5
-        with:
-          file: Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/arm64,linux/amd64
-          outputs: type=image,push=true
-
       - name: Build and push ( NodeBB-1003 )
         uses: docker/build-push-action@v5
         with:
           file: 1003.Dockerfile
           tags: ${{ steps.meta2.outputs.tags }}
           labels: ${{ steps.meta2.outputs.labels }}
+          platforms: linux/arm64,linux/amd64
+          outputs: type=image,push=true
+
+      - name: Build and push ( NodeBB-1004 )
+        uses: docker/build-push-action@v5
+        with:
+          file: 1004.Dockerfile
+          tags: ${{ steps.meta3.outputs.tags }}
+          labels: ${{ steps.meta3.outputs.labels }}
+          platforms: linux/arm64,linux/amd64
+          outputs: type=image,push=true
+
+      - name: Build and push ( NodeBB )
+        uses: docker/build-push-action@v5
+        with:
+          file: Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/arm64,linux/amd64
           outputs: type=image,push=true
