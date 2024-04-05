@@ -12,6 +12,47 @@ set_defaults() {
 }
 ```
 
+## 외부 MongoDB (호환 포함) 연결
+
+하드코딩 되어있는지 WebUI 상에서 입력된 값을 받지 않음. `setup.json`을 수정해서 마운트 혹은 cli로 설정 필요.
+관련 PR 진행중임.
+
+### 1. 컨테이너에 접속
+
+```bash
+docker exec -it <컨테이너-이름> bash
+```
+
+본 레포 그대로 clone 했을 경우
+
+```bash
+docker exec -it nodebb bash
+```
+
+### 2. NodeBB Setup
+
+```bash
+nodebb setup
+```
+
+프롬포트에 정확히 입력
+
+### 3. `config.json`을 `/opt/config/`의 경로로 이동
+
+```bash
+cp ./config.json /opt/config/
+```
+
+### 4. 컨테이너에서 나가고 다시 `docker-compose up -d`
+
+```bash
+exit
+```
+
+```bash
+docker compose down && docker compose up -d
+```
+
 see environments
 
 ## Simple Start
