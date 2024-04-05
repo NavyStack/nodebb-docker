@@ -13,19 +13,37 @@ services:
       - nodebb-modules:/usr/src/app/node_modules
     environment:
       OVERRIDE_UPDATE_LOCK: true
+    networks:
+      - internal
+
+  nginx:
+    container_name: nginx-nodebb
+    image: navystack/openresty:1.25.3
+    logging:
+      driver: json-file
+      options:
+        tag: '{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'
+        max-size: '10m'
+        max-file: 100
+    restart: unless-stopped
+    volumes:
+      - nodebb-build:/usr/share/nginx/build
+      - nodebb-uploads:/usr/share/nginx/public/uploads
+      - ./nginx:/etc/nginx/conf.d/
+      # - ./nginx-etc/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    networks:
+      - internal
+      - traefik-network
+    depends_on:
+      - nodebb
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=traefik-network'
-      - 'traefik.http.services.nodebb.loadbalancer.server.port=4567'
-      - 'traefik.http.services.nodebb.loadbalancer.passhostheader=true'
-      - 'traefik.http.routers.nodebb-rt.entrypoints=websecure'
-      - 'traefik.http.routers.nodebb-rt.rule=Host(`navystack.com`) || Host(`www.navystack.com`)'
-      - 'traefik.http.routers.nodebb-rt.service=nodebb'
-      - 'traefik.http.routers.nodebb-rt.middlewares=www-to-Root@file, security-headers@file, websocket@file'
-      - 'traefik.http.routers.nodebb-rt.tls=true'
-    networks:
-      - traefik-network
-      - internal
+      - 'traefik.http.services.navystack.loadbalancer.server.port=80'
+      - 'traefik.http.services.navystack.loadbalancer.passhostheader=true'
+      - 'traefik.http.routers.navystack.entrypoints=websecure'
+      - 'traefik.http.routers.navystack.rule=Host(`navystack.com`) || Host(`www.navystack.com`)'
+      - 'traefik.http.routers.navystack.service=navystack'
 
   mongo:
     container_name: mongo
