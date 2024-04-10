@@ -11,18 +11,9 @@ services:
       - nodebb-modules:/usr/src/app/node_modules
     environment:
       OVERRIDE_UPDATE_LOCK: true
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.docker.network=traefik-network'
-      - 'traefik.http.services.nodebb.loadbalancer.server.port=4567'
-      - 'traefik.http.services.nodebb.loadbalancer.passhostheader=true'
-      - 'traefik.http.routers.nodebb-rt.entrypoints=websecure'
-      - 'traefik.http.routers.nodebb-rt.rule=Host(`navystack.com`) || Host(`www.navystack.com`)'
-      - 'traefik.http.routers.nodebb-rt.service=nodebb'
-      - 'traefik.http.routers.nodebb-rt.middlewares=www-to-Root@file, security-headers@file, websocket@file'
-      - 'traefik.http.routers.nodebb-rt.tls=true'
+    ports:
+      - 4567:4567
     networks:
-      - traefik-network
       - internal
 
   mongo:
@@ -47,7 +38,7 @@ services:
       - 8081:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: navystack-mongo
-      ME_CONFIG_MONGODB_ADMINPASSWORD: xMxK4JX2GINcIUYKnLVFbUOq0WeqbB
+      ME_CONFIG_MONGODB_ADMINPASSWORD: oVvzozYfCgZXJ7373Y9VvmXh0J8WyF
       ME_CONFIG_MONGODB_SERVER: mongo
     networks:
       - internal
