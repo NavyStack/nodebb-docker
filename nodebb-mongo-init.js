@@ -1,8 +1,8 @@
 db.createUser({
-  user: 'askfront-mongo',
-  pwd: 'xMxK4JX2GINcIUYKnLVFbUOq0WeqbB',
+  user: 'navystack-mongo',
+  pwd: 'oVvzozYfCgZXJ7373Y9VvmXh0J8WyF',
   roles: [
-    { role: 'readWrite', db: 'askfront-mongo' },
+    { role: 'readWrite', db: 'navystack-mongo' },
     { role: 'clusterMonitor', db: 'admin' }
   ]
 })

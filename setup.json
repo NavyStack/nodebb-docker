@@ -4,7 +4,7 @@
     "port": 27017,
     "database": "navystack-mongo",
     "username": "navystack-mongo",
-    "password": "xMxK4JX2GINcIUYKnLVFbUOq0WeqbB"
+    "password": "oVvzozYfCgZXJ7373Y9VvmXh0J8WyF"
   },
   "redis": {
     "host": "redis",
