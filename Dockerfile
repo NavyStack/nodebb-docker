@@ -38,6 +38,8 @@ ENV NODE_ENV=production \
 
 WORKDIR /usr/src/app/
 
+## RUN corepack enable && corepack prepare
+
 RUN corepack enable \
   && groupadd --gid ${GID} ${USER} \
   && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
@@ -71,6 +73,8 @@ ENV NODE_ENV=production \
   TZ="Asia/Seoul"
 
 WORKDIR /usr/src/app/
+
+## RUN corepack enable && corepack prepare
 
 RUN groupadd --gid ${GID} ${USER} \
   && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
