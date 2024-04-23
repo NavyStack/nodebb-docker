@@ -55,6 +55,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     nodebb-plugin-meilisearch \
     nodebb-plugin-question-and-answer \
     nodebb-plugin-sso-github \
+    ## nodebb-plugin-knowledge-base \
   && npm install --package-lock-only --omit=dev
   ## pnpm import \
   ## && pnpm install --prod --frozen-lockfile
@@ -64,8 +65,6 @@ FROM node:lts-slim AS final
 ENV NODE_ENV=production \
   DAEMON=false \
   SILENT=false \
-  PNPM_HOME="/pnpm" \
-  PATH="$PNPM_HOME:$PATH" \
   USER=nodebb \
   UID=1001 \
   GID=1001 \
@@ -73,8 +72,7 @@ ENV NODE_ENV=production \
 
 WORKDIR /usr/src/app/
 
-RUN corepack enable \
-  && groupadd --gid ${GID} ${USER} \
+RUN groupadd --gid ${GID} ${USER} \
   && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
   && mkdir -p /usr/src/app/logs/ /opt/config/ \
   && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
