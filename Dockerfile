@@ -1,22 +1,11 @@
 FROM node:lts AS git
 
-ENV PNPM_HOME="/pnpm" \
-  PATH="$PNPM_HOME:$PATH" \
-  USER=nodebb \
-  UID=1001 \
-  GID=1001 \
-  TZ="Asia/Seoul"
+ENV TZ="Asia/Seoul"
 
 WORKDIR /usr/src/app/
 
-RUN groupadd --gid ${GID} ${USER} \
-  && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
-  && chown -R ${USER}:${USER} /usr/src/app/
-
 RUN apt-get update \
   && apt-get -y --no-install-recommends install tini
-
-USER ${USER}
 
 RUN git clone --recurse-submodules -j8 --depth 1 https://github.com/NodeBB/NodeBB.git .
 
@@ -29,25 +18,11 @@ RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bas
 FROM node:lts AS node_modules_touch
 
 ENV NODE_ENV=production \
-  PNPM_HOME="/pnpm" \
-  PATH="$PNPM_HOME:$PATH" \
-  USER=nodebb \
-  UID=1001 \
-  GID=1001 \
-  TZ="Asia/Seoul"
+    TZ="Asia/Seoul"
 
 WORKDIR /usr/src/app/
 
-## RUN corepack enable && corepack prepare
-
-RUN corepack enable \
-  && groupadd --gid ${GID} ${USER} \
-  && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
-  && chown -R ${USER}:${USER} /usr/src/app/
-
-COPY --from=git --chown=${USER}:${USER} /usr/src/app/install/package.json /usr/src/app/
-
-USER ${USER}
+COPY --from=git /usr/src/app/install/package.json /usr/src/app/
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   npm install \
@@ -65,6 +40,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 FROM node:lts-slim AS final
 
 ENV NODE_ENV=production \
+  NPM_CONFIG_UPDATE_NOTIFIER="false" \
   DAEMON=false \
   SILENT=false \
   USER=nodebb \
@@ -74,25 +50,44 @@ ENV NODE_ENV=production \
 
 WORKDIR /usr/src/app/
 
-## RUN corepack enable && corepack prepare
+ENV GOSU_VERSION 1.17
+RUN set -eux; \
+# save list of currently installed packages for later so we can clean up
+	savedAptMark="$(apt-mark showmanual)"; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends ca-certificates gnupg wget; \
+	rm -rf /var/lib/apt/lists/*; \
+	\
+	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+	\
+# verify the signature
+	export GNUPGHOME="$(mktemp -d)"; \
+	gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+	gpgconf --kill all; \
+	rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+	\
+# clean up fetch dependencies
+	apt-mark auto '.*' > /dev/null; \
+	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	\
+	chmod +x /usr/local/bin/gosu; \
+# verify that the binary works
+	gosu --version; \
+	gosu nobody true
 
-RUN groupadd --gid ${GID} ${USER} \
-  && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
-  && mkdir -p /usr/src/app/logs/ /opt/config/ \
-  && chown -R ${USER}:${USER} /usr/src/app/ /opt/config/
-
-COPY --from=node_modules_touch --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/
-COPY --from=git --chown=${USER}:${USER} /usr/src/app/ /usr/src/app/
-COPY --from=git --chown=${USER}:${USER} /usr/src/app/install/docker/setup.json /usr/src/app/setup.json
-COPY --from=git --chown=${USER}:${USER} /usr/bin/tini /usr/bin/tini
-COPY --chown=${USER}:${USER} docker-entrypoint.sh /usr/local/bin/
-
-USER ${USER}
+COPY --from=node_modules_touch /usr/src/app/ /usr/src/app/
+COPY --from=git /usr/src/app/ /usr/src/app/
+COPY --from=git /usr/src/app/install/docker/setup.json /usr/src/app/setup.json
+COPY --from=git /usr/bin/tini /usr/bin/tini
+COPY docker-entrypoint.sh /usr/local/bin/
+COPY start.sh /usr/local/bin/
 
 EXPOSE 4567
 
 VOLUME ["/usr/src/app/node_modules", "/usr/src/app/build", "/usr/src/app/public/uploads", "/opt/config/"]
 
-ENTRYPOINT ["tini", "--", "docker-entrypoint.sh"]
-## ENTRYPOINT ["tini", "--"]
-## CMD ["start.sh"]
+ENTRYPOINT ["tini", "--", "start.sh"]
