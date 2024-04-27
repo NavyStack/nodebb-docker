@@ -49,6 +49,7 @@ jobs:
             ghcr.io/${{ env.REPO_OWNER_LOWERCASE }}/nodebb-docker
           tags: |
             type=raw,value=gosu-${{ env.CURRENT_DATE_KST }}
+            type=raw,value=gosu
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
