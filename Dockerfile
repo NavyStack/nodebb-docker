@@ -83,8 +83,7 @@ COPY --from=node_modules_touch /usr/src/app/ /usr/src/app/
 COPY --from=git /usr/src/app/ /usr/src/app/
 COPY --from=git /usr/src/app/install/docker/setup.json /usr/src/app/setup.json
 COPY --from=git /usr/bin/tini /usr/bin/tini
-COPY docker-entrypoint.sh /usr/local/bin/
-COPY start.sh /usr/local/bin/
+COPY docker-entrypoint.sh start.sh /usr/local/bin/
 
 EXPOSE 4567
 
