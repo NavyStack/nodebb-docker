@@ -72,7 +72,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis:7-bookworm
+    image: redis:8-bookworm
     restart: unless-stopped
     volumes:
       - ./.docker/database/redis:/data
