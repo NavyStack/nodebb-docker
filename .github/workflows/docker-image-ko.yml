@@ -24,7 +24,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
 
       - name: Set up SSH
         uses: MrSquaare/ssh-setup-action@v3
