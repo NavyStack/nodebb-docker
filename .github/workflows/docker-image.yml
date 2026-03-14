@@ -61,7 +61,7 @@ jobs:
       #          private-key: ${{ secrets.SSH_PRIVATE_KEY_ARM64_RUNNER }}
 
       - name: Set up Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       #        with:
       #          endpoint: ${{ secrets.AMD64_RUNNER_ENDPOINT }}
       #          append: |
