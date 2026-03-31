@@ -27,7 +27,7 @@ jobs:
         uses: docker/metadata-action@v5
 
       - name: Set up SSH
-        uses: MrSquaare/ssh-setup-action@v3
+        uses: MrSquaare/ssh-setup-action@v4
         with:
           host: ${{ secrets.SSH_ARM64_RUNNER }}
           private-key: ${{ secrets.SSH_PRIVATE_KEY_ARM64_RUNNER }}
